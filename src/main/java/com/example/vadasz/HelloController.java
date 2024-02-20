@@ -2,6 +2,8 @@ package com.example.vadasz;
 
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -48,7 +50,7 @@ public class HelloController {
             it[y][x].setOnMousePressed(e -> loves(yy, xx));
             pane.getChildren().addAll(it[y][x]);
         }
-        generalErdo();
+
 
         timer = new AnimationTimer() {
             @Override
@@ -56,19 +58,24 @@ public class HelloController {
                 most = now;
                 if (now > tt) {
                     elbujik();
+                } if (roka == 0) {
+                    timer.stop();
+                    vege();
                 }
             }
         };
-        timer.start();
+        generalErdo();
     }
 
     public void generalErdo() {
         roka = 0; loves = 0; talalt = 0;
         for (int y = 0; y < 16; y++) for (int x = 0; x < 32; x++) {
             if (Math.random() < 0.1) { t[y][x] = ROKA; roka++;} else t[y][x] = TREE;
+            it[y][x].setImage(icons[DARK]);
         }
         rokaMax = roka;
         lbRoka.setText(roka + " / " + rokaMax + " róka");
+        timer.start();
     }
 
     public void vilagit(int y, int x) {
@@ -110,5 +117,20 @@ public class HelloController {
             talalt++;
         }
         lbLoves.setText(loves + " lövés / " + talalt + " találat");
+    }
+
+
+
+    public void vege() {
+        for (int y = 0; y < 16; y++) for (int x = 0; x < 32; x++) it[y][x].setImage(icons[t[y][x]]);
+        Alert uzenet = new Alert(Alert.AlertType.NONE);
+        uzenet.setTitle("Game over!");
+        uzenet.setHeaderText(null);
+        String txt = String.format("%d lövésből %d talált, ami %d%%\n", loves, talalt, talalt*100/loves);
+        txt += String.format("%d rókából %d lett lelőve, ami %d%%", rokaMax, talalt, talalt*100/rokaMax);
+        uzenet.setContentText(txt);
+        uzenet.getButtonTypes().add(new ButtonType("Újra"));
+        uzenet.setOnCloseRequest(e -> generalErdo());
+        uzenet.show();
     }
 }
